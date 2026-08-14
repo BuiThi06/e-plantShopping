@@ -1,68 +1,281 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { removeItem, updateQuantity } from './CartSlice';
 import './CartItem.css';
 
-const CartItem = ({ onContinueShopping }) => {
-  const cart = useSelector(state => state.cart.items);
-  const dispatch = useDispatch();
+import { useDispatch, useSelector } from 'react-redux';
+import { removeItem, updateQuantity } from './CartSlice';
 
-  // Calculate total amount for all products in the cart
-  const calculateTotalAmount = () => {
- 
-  };
+function CartItem({ onContinueShopping }) {
 
-  const handleContinueShopping = (e) => {
-   
-  };
+    const dispatch = useDispatch();
 
+    // Lấy danh sách sản phẩm từ Redux
+    const cartItems = useSelector(
+        (state) => state.cart.items
+    );
 
+    // Tính tổng tiền của toàn bộ giỏ hàng
+    const totalAmount = cartItems.reduce(
+        (total, item) =>
+            total + item.price * item.quantity,
+        0
+    );
 
-  const handleIncrement = (item) => {
-  };
+    // Tăng số lượng
+    const handleIncrease = (item) => {
 
-  const handleDecrement = (item) => {
-   
-  };
+        dispatch(
+            updateQuantity({
+                id: item.id,
+                quantity: item.quantity + 1
+            })
+        );
 
-  const handleRemove = (item) => {
-  };
+    };
 
-  // Calculate total cost based on quantity for an item
-  const calculateTotalCost = (item) => {
-  };
+    // Giảm số lượng
+    const handleDecrease = (item) => {
 
-  return (
-    <div className="cart-container">
-      <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount()}</h2>
-      <div>
-        {cart.map(item => (
-          <div className="cart-item" key={item.name}>
-            <img className="cart-item-image" src={item.image} alt={item.name} />
-            <div className="cart-item-details">
-              <div className="cart-item-name">{item.name}</div>
-              <div className="cart-item-cost">{item.cost}</div>
-              <div className="cart-item-quantity">
-                <button className="cart-item-button cart-item-button-dec" onClick={() => handleDecrement(item)}>-</button>
-                <span className="cart-item-quantity-value">{item.quantity}</span>
-                <button className="cart-item-button cart-item-button-inc" onClick={() => handleIncrement(item)}>+</button>
-              </div>
-              <div className="cart-item-total">Total: ${calculateTotalCost(item)}</div>
-              <button className="cart-item-delete" onClick={() => handleRemove(item)}>Delete</button>
+        if (item.quantity > 1) {
+
+            dispatch(
+                updateQuantity({
+                    id: item.id,
+                    quantity: item.quantity - 1
+                })
+            );
+
+        } else {
+
+            // Nếu quantity = 1 thì xóa sản phẩm
+            dispatch(removeItem(item.id));
+
+        }
+
+    };
+
+    // Xóa sản phẩm
+    const handleRemove = (item) => {
+
+        dispatch(removeItem(item.id));
+
+    };
+
+    // Checkout
+    const handleCheckout = () => {
+
+        alert('Coming Soon');
+
+    };
+
+    return (
+        <div className="cart-page">
+
+            {/* ================= NAVBAR ================= */}
+
+            <div className="cart-navbar">
+
+                <h2>
+                    Paradise Nursery
+                </h2>
+
+                <div>
+
+                    <button
+                        onClick={onContinueShopping}
+                        className="continue-shopping-nav"
+                    >
+                        Plants
+                    </button>
+
+                </div>
+
             </div>
-          </div>
-        ))}
-      </div>
-      <div style={{ marginTop: '20px', color: 'black' }} className='total_cart_amount'></div>
-      <div className="continue_shopping_btn">
-        <button className="get-started-button" onClick={(e) => handleContinueShopping(e)}>Continue Shopping</button>
-        <br />
-        <button className="get-started-button1">Checkout</button>
-      </div>
-    </div>
-  );
-};
+
+
+            {/* ================= CART TITLE ================= */}
+
+            <div className="cart-container">
+
+                <h1>
+                    Shopping Cart
+                </h1>
+
+
+                {/* ================= EMPTY CART ================= */}
+
+                {cartItems.length === 0 ? (
+
+                    <div className="empty-cart">
+
+                        <h2>
+                            Your cart is empty
+                        </h2>
+
+                        <button
+                            onClick={onContinueShopping}
+                            className="continue-shopping-button"
+                        >
+                            Continue Shopping
+                        </button>
+
+                    </div>
+
+                ) : (
+
+                    <>
+
+                        {/* ================= CART ITEMS ================= */}
+
+                        <div className="cart-items">
+
+                            {cartItems.map((item) => (
+
+                                <div
+                                    className="cart-item"
+                                    key={item.id}
+                                >
+
+                                    {/* Product image */}
+
+                                    <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="cart-item-image"
+                                    />
+
+
+                                    {/* Product information */}
+
+                                    <div className="cart-item-info">
+
+                                        <h2>
+                                            {item.name}
+                                        </h2>
+
+                                        <p>
+                                            Unit Price: $
+                                            {item.price.toFixed(2)}
+                                        </p>
+
+
+                                        {/* Quantity */}
+
+                                        <div className="quantity-controls">
+
+                                            <button
+                                                onClick={() =>
+                                                    handleDecrease(item)
+                                                }
+                                            >
+                                                −
+                                            </button>
+
+                                            <span>
+                                                {item.quantity}
+                                            </span>
+
+                                            <button
+                                                onClick={() =>
+                                                    handleIncrease(item)
+                                                }
+                                            >
+                                                +
+                                            </button>
+
+                                        </div>
+
+
+                                        {/* Delete */}
+
+                                        <button
+                                            onClick={() =>
+                                                handleRemove(item)
+                                            }
+                                            className="delete-button"
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </div>
+
+
+                                    {/* Total cost for this plant */}
+
+                                    <div className="cart-item-total">
+
+                                        <p>
+                                            Total
+                                        </p>
+
+                                        <strong>
+                                            $
+                                            {(
+                                                item.price *
+                                                item.quantity
+                                            ).toFixed(2)}
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            ))}
+
+                        </div>
+
+
+                        {/* ================= CART SUMMARY ================= */}
+
+                        <div className="cart-summary">
+
+                            <h2>
+                                Cart Summary
+                            </h2>
+
+                            <p>
+                                Total Items:{' '}
+                                {cartItems.reduce(
+                                    (total, item) =>
+                                        total + item.quantity,
+                                    0
+                                )}
+                            </p>
+
+                            <h2>
+                                Total Amount: $
+                                {totalAmount.toFixed(2)}
+                            </h2>
+
+
+                            {/* Checkout */}
+
+                            <button
+                                onClick={handleCheckout}
+                                className="checkout-button"
+                            >
+                                Checkout
+                            </button>
+
+
+                            {/* Continue Shopping */}
+
+                            <button
+                                onClick={onContinueShopping}
+                                className="continue-shopping-button"
+                            >
+                                Continue Shopping
+                            </button>
+
+                        </div>
+
+                    </>
+
+                )}
+
+            </div>
+
+        </div>
+    );
+}
 
 export default CartItem;
-
-
